@@ -1,6 +1,6 @@
 # Discord server leave GUI
 
-Desktop app that lists **your** Discord servers (your account) and lets you select which to leave, with a delay between each to avoid rate limits.
+**Leave Discord servers in bulk.** Desktop app that lists your servers and lets you select which to leave, with a configurable delay between each so you don’t hit rate limits. For cleaning up a long server list, automating leaves, or leaving many servers without clicking one-by-one.
 
 ## TL;DR
 
