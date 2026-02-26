@@ -133,7 +133,11 @@ class App:
         self.delay_entry = ttk.Entry(delay_f, textvariable=self.delay_var, width=4)
         self.delay_entry.pack(side=tk.LEFT)
 
-        ttk.Label(f, text="Servers (check to leave):").pack(anchor=tk.W, pady=(8, 0))
+        servers_header_f = ttk.Frame(f)
+        servers_header_f.pack(fill=tk.X, pady=(8, 0))
+        ttk.Label(servers_header_f, text="Servers (check to leave):").pack(side=tk.LEFT)
+        self.total_var = tk.StringVar(value="Total: —")
+        ttk.Label(servers_header_f, textvariable=self.total_var).pack(side=tk.LEFT, padx=(12, 0))
         sel_f = ttk.Frame(f)
         sel_f.pack(fill=tk.X, pady=(2, 4))
         ttk.Button(sel_f, text="Select all", command=self._select_all).pack(side=tk.LEFT, padx=(0, 6))
@@ -228,6 +232,7 @@ class App:
         self.listbox_frame.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         self.leave_btn.config(state=tk.NORMAL if guilds else tk.DISABLED)
+        self.total_var.set(f"Total: {len(guilds)} servers")
         self.log_msg(f"Loaded {len(guilds)} server(s). Order is as returned by Discord API (sidebar order is not exposed).")
 
     def load_guilds(self):
@@ -302,6 +307,7 @@ class App:
                 ttk.Label(row, text=f"{g['name']} ({g['member_count']} members)").pack(side=tk.LEFT)
             self.listbox_frame.update_idletasks()
             self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+            self.total_var.set(f"Total: {len(self.guilds)} servers")
             self.log_msg("Done.")
 
     def on_close(self):
