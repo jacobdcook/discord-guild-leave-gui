@@ -141,7 +141,9 @@ class App:
         sel_f = ttk.Frame(f)
         sel_f.pack(fill=tk.X, pady=(2, 4))
         ttk.Button(sel_f, text="Select all", command=self._select_all).pack(side=tk.LEFT, padx=(0, 6))
-        ttk.Button(sel_f, text="Deselect all", command=self._deselect_all).pack(side=tk.LEFT)
+        ttk.Button(sel_f, text="Deselect all", command=self._deselect_all).pack(side=tk.LEFT, padx=(0, 12))
+        self.selected_count_var = tk.StringVar(value="0 selected")
+        ttk.Label(sel_f, textvariable=self.selected_count_var).pack(side=tk.LEFT)
         list_f = ttk.Frame(f)
         list_f.pack(fill=tk.BOTH, expand=True, pady=4)
         self.canvas = tk.Canvas(list_f, highlightthickness=0)
@@ -200,6 +202,10 @@ class App:
         for var in self.vars_by_id.values():
             var.set(False)
 
+    def _update_selected_count(self):
+        n = sum(1 for v in self.vars_by_id.values() if v.get())
+        self.selected_count_var.set(f"{n} selected")
+
     def _on_guilds_loaded(self, guilds, err=None):
         self.load_btn.config(state=tk.NORMAL)
         if err:
@@ -216,6 +222,7 @@ class App:
         for g in guilds:
             var = tk.BooleanVar(value=False)
             self.vars_by_id[g["id"]] = var
+            var.trace_add("write", lambda *a: self._update_selected_count())
             row = ttk.Frame(self.listbox_frame)
             row.pack(anchor=tk.W, fill=tk.X, pady=1)
             cb = ttk.Checkbutton(row, variable=var)
@@ -233,6 +240,7 @@ class App:
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         self.leave_btn.config(state=tk.NORMAL if guilds else tk.DISABLED)
         self.total_var.set(f"Total: {len(guilds)} servers")
+        self._update_selected_count()
         self.log_msg(f"Loaded {len(guilds)} server(s). Order is as returned by Discord API (sidebar order is not exposed).")
 
     def load_guilds(self):
@@ -292,6 +300,7 @@ class App:
             for g in self.guilds:
                 var = tk.BooleanVar(value=False)
                 self.vars_by_id[g["id"]] = var
+                var.trace_add("write", lambda *a: self._update_selected_count())
                 row = ttk.Frame(self.listbox_frame)
                 row.pack(anchor=tk.W, fill=tk.X, pady=1)
                 cb = ttk.Checkbutton(row, variable=var)
@@ -308,6 +317,7 @@ class App:
             self.listbox_frame.update_idletasks()
             self.canvas.configure(scrollregion=self.canvas.bbox("all"))
             self.total_var.set(f"Total: {len(self.guilds)} servers")
+            self._update_selected_count()
             self.log_msg("Done.")
 
     def on_close(self):
